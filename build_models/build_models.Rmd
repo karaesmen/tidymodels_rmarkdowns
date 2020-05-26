@@ -1,0 +1,129 @@
+---
+title: "Tutorial"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, error = FALSE, warning = FALSE)
+```
+
+
+## Introduction
+
+This is an accompanying RMardown document for the get started article [Build a model](https://www.tidymodels.org/start/models/) on [tidymodels.org](https://www.tidymodels.org/). 
+
+We will walk through the steps of creating a statistical model using [parsnip package](https://tidymodels.github.io/parsnip/) from [tidymodels](https://tidymodels.tidymodels.org/).
+
+Libraries needed
+
+```{r eval=TRUE}
+library(tidymodels)  # for the parsnip package, along with the rest of tidymodels
+
+# Helper packages
+library(readr)       # for importing data
+```
+
+
+## The Sea Urchins Data
+
+Let's use the data from [Constable (1993)](https://link.springer.com/article/10.1007/BF00349318) to explore how three different feeding regimes affect the size of sea urchins over time. The initial size of the sea urchins at the beginning of the experiment probably affects how big they grow as they are fed. 
+
+To start, let's read our urchins data into R and modify so it's ready to use:
+
+1. Import data with `readr::read_csv()` with a [url]("https://tidymodels.org/start/models/urchins.csv") where the CSV data is located. (See `?read::read_csv()` if you need help.)    
+2. Change column names to define variables better.   
+3. Convert `food_regime` column to factor, because factors are very helpful for modeling.
+
+```{r data}
+urchins <-
+  read_csv("https://tidymodels.org/start/models/urchins.csv") %>% 
+  # Change column names
+  setNames(c("food_regime", "initial_volume", "width")) %>% 
+  # Convert to factor
+  mutate(food_regime = factor(food_regime, levels = c("Initial", "Low", "High")))
+```
+
+Let's take a quick look at the data
+
+```{r head_data, exercise=TRUE, exercise.lines=4, eval=FALSE}
+urchins
+```
+
+The urchins data is a `tibble`. For each of the `r nrow(urchins)` urchins, we know their:
+
++ experimental feeding regime group (`food_regime`: either `Initial`, `Low`, or `High`),
++ size in milliliters at the start of the experiment (`initial_volume`), and
++ suture width at the end of the experiment (`width`).
+
+As a first step in modeling, it's always a good idea to plot the data: 
+
+```{r urchin-plot}
+scat_p <- ggplot(urchins,
+       aes(x = initial_volume, 
+           y = width, 
+           group = food_regime, 
+           col = food_regime)) + 
+  geom_point() +
+  scale_color_viridis_d(option = "plasma", end = .7)
+
+scat_p
+```
+
+How can we display fitted lines with ggplot?
+
+```{r plot_lm, exercise=TRUE, exercise.lines=5, eval=FALSE}
+
+
+```
+
+
+```{r plot_lm-hint}
+scat_p + 
+  geom_smooth(method = lm, se = FALSE) 
+  
+```
+
+
+We can see that urchins that were larger in volume at the start of the experiment tended to have wider sutures at the end, but the slopes of the lines look different so this effect may depend on the feeding regime condition.
+
+<!-- ## Topic 2 -->
+
+<!-- ### Exercise with Hint -->
+
+<!-- *Here's an exercise where the chunk is pre-evaulated via the `exercise.eval` option (so the user can see the default output we'd like them to customize). We also add a "hint" to the correct solution via the chunk immediate below labeled `print-limit-hint`.* -->
+
+<!-- Modify the following code to limit the number of rows printed to 5: -->
+
+<!-- ```{r print-limit, exercise=TRUE, exercise.eval=TRUE} -->
+<!-- mtcars -->
+<!-- ``` -->
+
+<!-- ```{r print-limit-hint} -->
+<!-- head(mtcars) -->
+<!-- ``` -->
+
+<!-- ### Quiz -->
+
+<!-- *You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.* -->
+
+<!-- Some questions to verify that you understand the purposes of various base and recommended R packages: -->
+
+<!-- ```{r quiz} -->
+<!-- quiz( -->
+<!--   question("Which package contains functions for installing other R packages?", -->
+<!--     answer("base"), -->
+<!--     answer("tools"), -->
+<!--     answer("utils", correct = TRUE), -->
+<!--     answer("codetools") -->
+<!--   ), -->
+<!--   question("Which of the R packages listed below are used to create plots?", -->
+<!--     answer("lattice", correct = TRUE), -->
+<!--     answer("tools"), -->
+<!--     answer("stats"), -->
+<!--     answer("grid", correct = TRUE) -->
+<!--   ) -->
+<!-- ) -->
+<!-- ``` -->
+
