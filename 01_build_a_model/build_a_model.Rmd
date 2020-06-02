@@ -6,17 +6,17 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-This is an accompanying R Markdown document for the tidymodels get started article [Build a model](https://www.tidymodels.org/start/models/). 
+Get started with building a model in this R Markdown document that accompanies [Build a model](https://www.tidymodels.org/start/models/). 
 
-If you ever get lost, you can click on the header to see the accompanying section in the online article.
+If you ever get lost, you can click on the header of the knitted document to see the accompanying section in the online article.
 
 ## [Introduction](https://www.tidymodels.org/start/models/#intro)
 
 
-```{r load-libs}
+```{r}
 library(tidymodels)  # for the parsnip package, along with the rest of tidymodels
 
 # Helper packages
@@ -27,7 +27,7 @@ library(readr)       # for importing data
 ## [The Sea Urchins Data](https://www.tidymodels.org/start/models/#data)
 
 
-```{r data}
+```{r}
 urchins <-
   # Data were assembled for a tutorial 
   # at https://www.flutterbys.com.au/stats/tut/tut7.5a.html
@@ -46,7 +46,7 @@ urchins
 
 Plot the data: 
 
-```{r urchin-plot}
+```{r}
 ggplot(urchins,
        aes(x = initial_volume, 
            y = width, 
@@ -59,11 +59,13 @@ ggplot(urchins,
 
 ## [Build and fit a model](https://www.tidymodels.org/start/models/#build-model)
 
-```{r lm-spec}
+```{r}
 linear_reg() %>% 
   set_engine("lm")
-?linear_reg()
+
 ```
+
+Try typing `?linear_reg()` in the console to see all available engines and other details about this model type!
 
 Create model specification:
 
@@ -75,14 +77,16 @@ lm_mod <-
 
 Fit model:
 
-```{r lm-fit}
+```{r}
 lm_fit <- 
   lm_mod %>% 
   fit(width ~ initial_volume * food_regime, data = urchins)
 lm_fit
 ```
 
-```{r lm-table}
+Present model results in a tidyverse friendly way with `tidy()` from `broom` package.
+
+```{r}
 tidy(lm_fit)
 ```
 
@@ -90,7 +94,7 @@ tidy(lm_fit)
 
 New example data to predict:
 
-```{r new-points}
+```{r}
 new_points <- expand.grid(initial_volume = 20, 
                           food_regime = c("Initial", "Low", "High"))
 new_points
@@ -98,14 +102,14 @@ new_points
 
 Generate the mean body width values: 
 
-```{r lm-pred-mean}
+```{r}
 mean_pred <- predict(lm_fit, new_data = new_points)
 mean_pred
 ```
 
 Get confidence intervals and plot:
 
-```{r lm-all-pred}
+```{r}
 conf_int_pred <- predict(lm_fit, 
                          new_data = new_points, 
                          type = "conf_int")
@@ -130,7 +134,7 @@ ggplot(plot_data, aes(x = food_regime)) +
 
 Switch to Bayesian approach by simply changing your engine to **stan**: 
 
-```{r go-stan, message = FALSE}
+```{r}
 # set the prior distribution
 prior_dist <- rstanarm::student_t(df = 1)
 
@@ -153,13 +157,13 @@ print(bayes_fit, digits = 5)
 
 To update the parameter table, the `tidy()` method is once again used: 
 
-```{r tidy-stan}
+```{r}
 tidy(bayes_fit, intervals = TRUE)
 ```
 
 Get your predictions easily without changing the syntax:
 
-```{r stan-pred}
+```{r}
 bayes_plot_data <- 
   new_points %>% 
   bind_cols(predict(bayes_fit, new_data = new_points)) %>% 
@@ -173,30 +177,7 @@ ggplot(bayes_plot_data, aes(x = food_regime)) +
 ```
 
 
-## [Why does it work that way?](https://www.tidymodels.org/start/models/#why)
+Don't forget about the pipe (`%>%`):
 
-Use the pipe to pass around the _data_ in the **tidyverse**:
-
-```{r tidy-data}
-urchins %>% 
-  group_by(food_regime) %>% 
-  summarize(med_vol = median(initial_volume))
-```
-
-Use the pipe to pass around the _model object_ with **tidymodels**
-
-```{r tidy-model, eval = FALSE}
-bayes_mod %>% 
-  fit(width ~ initial_volume * food_regime, data = urchins)
-```
-
-This may seem jarring if you have used dplyr a lot, but it is extremely similar to how ggplot2 operates:
-
-```{r eval=FALSE}
-ggplot(urchins,
-       aes(initial_volume, width)) +      # returns a ggplot object 
-  geom_jitter() +                         # same
-  geom_smooth(method = lm, se = FALSE) +  # same                    
-  labs(x = "Volume", y = "Width")         # etc
-```
-
++ Use the pipe to pass around the _data_ in the **tidyverse**   
++ Use the pipe to pass around the _model object_ with **tidymodels**
