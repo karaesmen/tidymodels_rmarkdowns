@@ -231,11 +231,12 @@ It looks like we did not overfit during our tuning procedure!
 
 ## Your turn!
 
-The `decision_tree()` function has *another* hyperparameter that can be tuned!
 You can see available parsnip object arguments with:
 
 ```{r}
 args(decision_tree)
 ```
 
-Now you can try to tune another decision tree model with `min_n`!
+Which shows that the `decision_tree()` function has *another* hyperparameter `min_n` that can also be tuned!
+
+Now *you* can try to tune another decision tree model with `min_n`!
